@@ -1,0 +1,35 @@
+name: Deploy nginx.conf to EC2
+
+on:
+  push:
+    paths:
+      - "nginx/nginx.conf"
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copy nginx.conf to EC2 and reload nginx
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "nginx/nginx.conf"
+          target: "/tmp/nginx.conf"
+
+      - name: SSH to EC2 and move config, restart nginx
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo mv /tmp/nginx.conf /etc/nginx/nginx.conf
+            sudo nginx -t && sudo systemctl restart nginx
