@@ -22,7 +22,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "nginx/badges.conf"
-          target: "/tmp/badges.conf"
+          target: "/tmp/"
 
       - name: SSH to EC2 and move config, reload nginx
         uses: appleboy/ssh-action@v1.2.2
