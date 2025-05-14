@@ -3,7 +3,7 @@ name: Deploy badges.conf to EC2
 on:
   push:
     paths:
-      - "nginx/nginx.conf"
+      - "nginx/badges.conf"
     branches:
       - main
 
@@ -21,7 +21,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "nginx/nginx.conf"
+          source: "nginx/badges.conf"
           target: "/tmp/badges.conf"
 
       - name: SSH to EC2 and move config, reload nginx
