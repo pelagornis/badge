@@ -31,5 +31,9 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            echo ">> Moving config..."
             sudo mv /tmp/badges.conf /etc/nginx/conf.d/badges.conf
-            sudo nginx -t && sudo systemctl reload nginx
+            echo ">> Testing Nginx config..."
+            sudo nginx -t
+            echo ">> Reloading Nginx..."
+            sudo systemctl reload nginx
