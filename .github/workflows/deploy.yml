@@ -19,7 +19,7 @@ jobs:
       - name: Configure AWS credentials with OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/badge
+          role-to-assume: ${{ secrets.LAMBDA_EXECUTION_ROLE_ARN }}
           aws-region: ap-northeast-2
 
       - name: Install dependencies
@@ -36,3 +36,4 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --no-confirm-changeset \
             --region ap-northeast-2
+            --parameter-overrides LambdaExecutionRoleArn=${{ secrets.LAMBDA_EXECUTION_ROLE_ARN }}
