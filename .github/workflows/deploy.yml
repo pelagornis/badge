@@ -6,8 +6,8 @@ on:
       - main
 
 permissions:
-  id-token: write # OIDC 토큰 요청 권한
-  contents: read # 리포지토리 내용 읽기 권한
+  id-token: write
+  contents: read
 
 jobs:
   deploy:
@@ -19,7 +19,7 @@ jobs:
       - name: Configure AWS credentials with OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.LAMBDA_EXECUTION_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ap-northeast-2
 
       - name: Install dependencies
@@ -31,9 +31,9 @@ jobs:
       - name: Deploy SAM application
         run: |
           sam deploy \
-            --stack-name ${{ secrets.AWS_S3_STACK }} \
+            --stack-name ${{ secrets.AWS_STACK }} \
             --s3-bucket ${{ secrets.AWS_S3_BUCKET }} \
             --capabilities CAPABILITY_IAM \
             --no-confirm-changeset \
-            --region ap-northeast-2
-            --parameter-overrides LambdaExecutionRoleArn=${{ secrets.LAMBDA_EXECUTION_ROLE_ARN }}
+            --region ap-northeast-2 \
+            --parameter-overrides LambdaExecutionRoleArn=${{ secrets.AWS_ROLE_ARN }}
