@@ -1,5 +1,7 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Transform: AWS::Serverless-2016-10-31
+Parameters:
+  LambdaExecutionRoleArn:
+    Type: String
+
 Resources:
   BadgeRedirectFunction:
     Type: AWS::Serverless::Function
@@ -8,6 +10,7 @@ Resources:
       Runtime: nodejs22.x
       MemorySize: 128
       Timeout: 5
+      Role: !Ref LambdaExecutionRoleArn
       Events:
         Api:
           Type: HttpApi
