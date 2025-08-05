@@ -1,0 +1,18 @@
+{
+  "name": "@pelagornis/badge",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@types/aws-lambda": "^8.10.152"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "jest": "^30.0.5",
+    "@types/jest": "^30.0.5",
+    "ts-jest": "^29.4.1"
+  }
+}

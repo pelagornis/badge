@@ -1,39 +1,36 @@
-name: Deploy badges.conf to EC2
+name: Deploy Lambda with OIDC
 
 on:
   push:
-    paths:
-      - "nginx/badges.conf"
     branches:
       - main
+
+permissions:
+  id-token: write # OIDC 토큰 요청 권한
+  contents: read # 코드 체크아웃 권한
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Copy badges.conf to EC2
-        uses: appleboy/scp-action@v0.1.4
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "nginx/badges.conf"
-          target: "/tmp/"
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/badge
+          aws-region: ap-northeast-2
 
-      - name: SSH to EC2 and move config, reload nginx
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            echo ">> Moving config..."
-            sudo mv /tmp/nginx/badges.conf /etc/nginx/conf.d/badges.conf
-            echo ">> Testing Nginx config..."
-            sudo nginx -t
-            echo ">> Reloading Nginx..."
-            sudo systemctl reload nginx
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build SAM application
+        run: sam build
+
+      - name: Deploy SAM application
+        run: sam deploy \
+          --stack-name badge-redirect-stack \
+          --capabilities CAPABILITY_IAM \
+          --no-confirm-changeset \
+          --region ap-northeast-2
