@@ -31,8 +31,8 @@ jobs:
       - name: Deploy SAM application
         run: |
           sam deploy \
-            --stack-name ${{ secrets.AWS_STACK }} \
-            --s3-bucket ${{ secrets.AWS_S3_BUCKET }} \
+            --stack-name badge-stack \
+            --s3-bucket pelagornis-badge-redirect-stack \
             --capabilities CAPABILITY_IAM \
             --no-confirm-changeset \
             --region ap-northeast-2 \
