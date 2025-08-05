@@ -7,7 +7,7 @@ on:
 
 permissions:
   id-token: write # OIDC 토큰 요청 권한
-  contents: read # 코드 체크아웃 권한
+  contents: read # 리포지토리 내용 읽기 권한
 
 jobs:
   deploy:
