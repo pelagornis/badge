@@ -30,7 +30,7 @@ jobs:
       - name: Deploy Lambda
         run: |
           sam deploy \
-            --stack-name redirect-lambda-stack \
+            --stack-name badge \
             --capabilities CAPABILITY_IAM \
             --no-confirm-changeset \
             --resolve-s3 \
