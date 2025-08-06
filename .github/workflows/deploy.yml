@@ -9,9 +9,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # 1. 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2. AWS 자격 증명 설정
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -19,13 +21,29 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      - name: Install SAM CLI
-        run: |
-          pip install aws-sam-cli
+      # 3. Node.js 설치 (TypeScript 빌드를 위해 필요)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-      - name: Build Lambda
+      # 4. 의존성 설치
+      - name: Install dependencies
+        run: npm ci
+
+      # 5. TypeScript 빌드
+      - name: Build TypeScript
+        run: npm run build
+
+      # 6. SAM CLI 설치
+      - name: Install SAM CLI
+        run: pip install aws-sam-cli
+
+      # 7. Lambda 빌드
+      - name: Build Lambda with SAM
         run: sam build
 
+      # 8. Lambda 배포
       - name: Deploy Lambda
         env:
           AWS_DEFAULT_REGION: ap-northeast-2
