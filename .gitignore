@@ -37,4 +37,4 @@ coverage/
 .idea/
 *.sublime-workspace
 *.sublime-
-.aws-sam
+.aws-sam/
