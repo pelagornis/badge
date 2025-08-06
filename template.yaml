@@ -20,7 +20,6 @@ Resources:
     Properties:
       Name: badge-http-api
       ProtocolType: HTTP
-
   # Stage 명시적 선언
   RedirectHttpApiStage:
     Type: AWS::ApiGatewayV2::Stage
@@ -28,7 +27,6 @@ Resources:
       ApiId: !Ref RedirectHttpApi
       StageName: $default
       AutoDeploy: true
-
   # Lambda Function
   RedirectFunction:
     Type: AWS::Serverless::Function
