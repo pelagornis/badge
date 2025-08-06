@@ -3,6 +3,7 @@ import { redirectURL } from "./redirects";
 import { response } from "./response";
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+  console.log("Event:", JSON.stringify(event));
   const path = event.rawPath;
   const url = redirectURL(path);
   return response(url);
