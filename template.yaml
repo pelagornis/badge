@@ -14,6 +14,11 @@ Parameters:
     Description: "ACM certificate ARN for custom domain"
 
 Resources:
+  ServerlessHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: "$default"
+
   RedirectFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -25,8 +30,9 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: GET
+            ApiId: !Ref ServerlessHttpApi
 
-  RedirectFunctionInvokePermission: # ★ 여기 추가
+  RedirectFunctionInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref RedirectFunction
@@ -47,8 +53,3 @@ Resources:
       ApiId: !Ref ServerlessHttpApi
       DomainName: !Ref BadgeApiDomain
       Stage: "$default"
-
-Outputs:
-  ApiUrl:
-    Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${BadgeApiDomain}/"
