@@ -51,7 +51,9 @@ Resources:
       FunctionName: !Ref RedirectFunction
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RedirectHttpApi}/*/*/*
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RedirectHttpApi}/*/GET/*
+    DependsOn:
+      - RedirectHttpApiStage
 
   # API Gateway Custom Domain
   BadgeApiDomain:
