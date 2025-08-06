@@ -17,7 +17,6 @@ Resources:
   RedirectFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: badge
       Handler: index.handler
       CodeUri: .
       Events:
