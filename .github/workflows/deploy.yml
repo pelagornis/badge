@@ -1,39 +1,37 @@
-name: Deploy Lambda with OIDC
+name: Deploy Lambda via SAM
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Configure AWS credentials with OIDC
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install SAM CLI
+        run: |
+          pip install aws-sam-cli
 
-      - name: Build SAM application
+      - name: Build Lambda
         run: sam build
 
-      - name: Deploy SAM application
+      - name: Deploy Lambda
         run: |
           sam deploy \
-            --stack-name badge-stack \
-            --s3-bucket pelagornis-badge-redirect-stack \
+            --stack-name redirect-lambda-stack \
             --capabilities CAPABILITY_IAM \
             --no-confirm-changeset \
-            --region ap-northeast-2 \
-            --parameter-overrides LambdaExecutionRoleArn=${{ secrets.AWS_ROLE_ARN }}
+            --resolve-s3 \
+            --parameter-overrides CertificateArn=${{ secrets.CERTIFICATE_ARN }}
