@@ -21,7 +21,7 @@ Resources:
       Name: badge-http-api
       ProtocolType: HTTP
 
-  # Stage 명시적 선언 (자동 배포 활성화)
+  # Stage 명시적 선언
   RedirectHttpApiStage:
     Type: AWS::ApiGatewayV2::Stage
     Properties:
