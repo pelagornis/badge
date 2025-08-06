@@ -1,23 +1,47 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
+Description: Lambda redirect function with custom domain
+
+Globals:
+  Function:
+    Timeout: 5
+    Runtime: nodejs22.x
+    MemorySize: 128
 
 Parameters:
-  LambdaExecutionRoleArn:
+  CertificateArn:
     Type: String
-    Description: "ARN of the IAM Role for Lambda execution"
+    Description: "ACM certificate ARN for custom domain"
 
 Resources:
-  BadgeRedirectFunction:
+  RedirectFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: dist/index.handler
-      Runtime: nodejs22.x
-      MemorySize: 128
-      Timeout: 5
-      Role: !Ref LambdaExecutionRoleArn
+      FunctionName: badge
+      Handler: index.handler
+      CodeUri: .
       Events:
-        Api:
+        RedirectApi:
           Type: HttpApi
           Properties:
             Path: /{proxy+}
-            Method: ANY
+            Method: GET
+
+  BadgeApiDomain:
+    Type: AWS::ApiGatewayV2::DomainName
+    Properties:
+      DomainName: badge.pelagornis.com
+      DomainNameConfigurations:
+        - CertificateArn: !Ref CertificateArn
+
+  BadgeApiMapping:
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Properties:
+      ApiId: !Ref ServerlessHttpApi
+      DomainName: !Ref BadgeApiDomain
+      Stage: $default
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${BadgeApiDomain}/"
