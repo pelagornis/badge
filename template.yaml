@@ -14,16 +14,33 @@ Parameters:
     Description: "ACM certificate ARN for custom domain"
 
 Resources:
+  # HttpApi 명시적 선언
+  RedirectHttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: badge-http-api
+      ProtocolType: HTTP
+
+  # Stage 명시적 선언 (자동 배포 활성화)
+  RedirectHttpApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref RedirectHttpApi
+      StageName: $default
+      AutoDeploy: true
+
   # Lambda Function
   RedirectFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: index.handler # dist/index.js에서 handler를 찾음
-      CodeUri: dist # TypeScript 빌드 후 배포 경로
+      Handler: index.handler
+      CodeUri: dist
+      Runtime: nodejs22.x
       Events:
         RedirectApi:
           Type: HttpApi
           Properties:
+            ApiId: !Ref RedirectHttpApi
             Path: /{proxy+}
             Method: GET
 
@@ -34,7 +51,7 @@ Resources:
       FunctionName: !Ref RedirectFunction
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ServerlessHttpApi}/*/*/*
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RedirectHttpApi}/*/*/*
 
   # API Gateway Custom Domain
   BadgeApiDomain:
@@ -48,9 +65,9 @@ Resources:
   BadgeApiMapping:
     Type: AWS::ApiGatewayV2::ApiMapping
     Properties:
-      ApiId: !Ref ServerlessHttpApi
+      ApiId: !Ref RedirectHttpApi
       DomainName: !Ref BadgeApiDomain
-      Stage: "$default"
+      Stage: !Ref RedirectHttpApiStage
 
 Outputs:
   ApiUrl:
