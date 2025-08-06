@@ -26,6 +26,14 @@ Resources:
             Path: /{proxy+}
             Method: GET
 
+  RedirectFunctionInvokePermission: # ★ 여기 추가
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref RedirectFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ServerlessHttpApi}/*/*/*
+
   BadgeApiDomain:
     Type: AWS::ApiGatewayV2::DomainName
     Properties:
