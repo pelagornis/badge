@@ -38,7 +38,7 @@ Resources:
     Properties:
       ApiId: !Ref ServerlessHttpApi
       DomainName: !Ref BadgeApiDomain
-      Stage: $default
+      Stage: "$default"
 
 Outputs:
   ApiUrl:
