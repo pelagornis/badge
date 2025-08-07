@@ -1,6 +1,6 @@
 version = 0.1
 [default.deploy.parameters]
-stack_name = "redirect-service"
+stack_name = "badge"
 region = "ap-northeast-2"
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = false
