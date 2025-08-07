@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: Lambda redirect function with custom domain
+Description: Lambda redirect function with custom domain (SAM fully managed)
 
 Globals:
   Function:
@@ -14,64 +14,28 @@ Parameters:
     Description: "ACM certificate ARN for custom domain"
 
 Resources:
-  # HttpApi 명시적 선언
   RedirectHttpApi:
-    Type: AWS::ApiGatewayV2::Api
+    Type: AWS::Serverless::HttpApi
     Properties:
-      Name: badge-http-api
-      ProtocolType: HTTP
-  # Stage 명시적 선언
-  RedirectHttpApiStage:
-    Type: AWS::ApiGatewayV2::Stage
-    Properties:
-      ApiId: !Ref RedirectHttpApi
       StageName: $default
-      AutoDeploy: true
-  # Lambda Function
+      Domain:
+        DomainName: badge.pelagornis.com
+        CertificateArn: !Ref CertificateArn
+
   RedirectFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.handler
       CodeUri: dist
-      Runtime: nodejs22.x
       Events:
-        RedirectApi:
+        CatchAll:
           Type: HttpApi
           Properties:
             ApiId: !Ref RedirectHttpApi
             Path: /{proxy+}
-            Method: GET
-
-  # Lambda Permission (Stage 생성 이후 적용)
-  RedirectFunctionInvokePermission:
-    Type: AWS::Lambda::Permission
-    DependsOn:
-      - RedirectHttpApiStage
-    Properties:
-      FunctionName: !Ref RedirectFunction
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RedirectHttpApi}/*/GET/*
-
-  # API Gateway Custom Domain
-  BadgeApiDomain:
-    Type: AWS::ApiGatewayV2::DomainName
-    Properties:
-      DomainName: badge.pelagornis.com
-      DomainNameConfigurations:
-        - CertificateArn: !Ref CertificateArn
-
-  # API Mapping
-  BadgeApiMapping:
-    Type: AWS::ApiGatewayV2::ApiMapping
-    DependsOn:
-      - RedirectHttpApiStage
-    Properties:
-      ApiId: !Ref RedirectHttpApi
-      DomainName: !Ref BadgeApiDomain
-      Stage: !Ref RedirectHttpApiStage
+            Method: ANY
 
 Outputs:
   ApiUrl:
-    Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${BadgeApiDomain}/"
+    Description: "API Gateway custom domain URL"
+    Value: !Sub "https://${RedirectHttpApi.Domain.DomainName}/"
